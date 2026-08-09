@@ -78,3 +78,37 @@ export function scoreColor(ratio: number): string {
   if (ratio >= 0.5) return "text-amber-600";
   return "text-rose-600";
 }
+
+// ─── 영상 링크 처리 ───
+// 네이버 마이박스 등 대부분의 클라우드 공유 링크는 iframe 삽입이 막혀 있어
+// "새 탭에서 열기"로 처리하고, 삽입 가능한 형식(YouTube, 직접 영상 파일)만 임베드한다.
+export type ResolvedVideo =
+  | { kind: "youtube"; embedUrl: string }
+  | { kind: "file"; src: string }
+  | { kind: "external"; provider: string; url: string }
+  | { kind: "empty" };
+
+export function resolveVideo(url: string | null | undefined): ResolvedVideo {
+  if (!url || !url.trim()) return { kind: "empty" };
+  const u = url.trim();
+
+  // YouTube
+  const yt = u.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/
+  );
+  if (yt) {
+    return { kind: "youtube", embedUrl: `https://www.youtube-nocookie.com/embed/${yt[1]}` };
+  }
+
+  // 직접 영상 파일
+  if (/\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i.test(u)) {
+    return { kind: "file", src: u };
+  }
+
+  // 그 외 외부 링크 (네이버 마이박스 등) → 새 탭 열기
+  let provider = "외부 링크";
+  if (/mybox\.naver\.com|naver\.me|mybox/.test(u)) provider = "네이버 마이박스";
+  else if (/drive\.google\.com/.test(u)) provider = "구글 드라이브";
+  else if (/vimeo\.com/.test(u)) provider = "Vimeo";
+  return { kind: "external", provider, url: u };
+}

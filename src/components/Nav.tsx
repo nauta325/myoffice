@@ -9,6 +9,7 @@ const LINKS = [
   { href: "/grades", label: "성적", icon: "📝" },
   { href: "/students", label: "학생", icon: "👥" },
   { href: "/classes", label: "반 관리", icon: "🏫" },
+  { href: "/courses", label: "강의 관리", icon: "🎬" },
 ];
 
 export function Nav() {
@@ -43,6 +44,13 @@ export function Nav() {
             );
           })}
         </div>
+        <Link
+          href="/watch"
+          target="_blank"
+          className="ml-2 hidden shrink-0 items-center gap-1 rounded-lg border border-brand-200 bg-brand-50 px-3 py-1.5 text-sm font-medium text-brand-700 hover:bg-brand-100 sm:flex"
+        >
+          학생 강의실 ↗
+        </Link>
       </div>
     </nav>
   );

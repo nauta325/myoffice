@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { scoreColor } from "@/lib/utils";
-import { saveGrade } from "@/app/grades/actions";
+import { saveGrade } from "@/app/(manage)/grades/actions";
 
 type Row = {
   studentId: number;

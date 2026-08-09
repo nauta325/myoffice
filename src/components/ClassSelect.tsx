@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { updateStudentClass } from "@/app/students/actions";
+import { updateStudentClass } from "@/app/(manage)/students/actions";
 
 type ClassOption = { id: number; name: string };
 

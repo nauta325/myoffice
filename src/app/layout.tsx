@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Nav } from "@/components/Nav";
 
 export const metadata: Metadata = {
-  title: "학원 출결·성적 관리",
-  description: "초중고 입시학원용 출결 및 성적 관리 시스템",
+  title: "학원 관리 & 강의실",
+  description: "초중고 입시학원용 출결·성적 관리 및 영상 강의실",
 };
 
 export default function RootLayout({
@@ -14,10 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
-      <body>
-        <Nav />
-        <main className="mx-auto max-w-5xl px-4 py-6">{children}</main>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

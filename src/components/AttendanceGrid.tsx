@@ -6,7 +6,7 @@ import {
   ATTENDANCE_ORDER,
   type AttendanceStatus,
 } from "@/lib/utils";
-import { markAllPresent, setAttendance } from "@/app/attendance/actions";
+import { markAllPresent, setAttendance } from "@/app/(manage)/attendance/actions";
 
 type Row = {
   studentId: number;

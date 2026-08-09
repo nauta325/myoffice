@@ -88,3 +88,38 @@ model Grade {
 
   @@unique([examId, studentId])
 }
+
+// ─────────────────────────────────────────────
+// 강의실 (학생용 영상 강의) - 교재 목차 기반
+// Course(강좌 = 챕터) → Lesson(강의 = Unit 영상)
+// ─────────────────────────────────────────────
+
+// 강좌 = 교재의 챕터 (예: "CHAPTER 01 be동사")
+model Course {
+  id        Int      @id @default(autoincrement())
+  code      String? // 표시용 라벨 (예: "CHAPTER 01", "GRAMMAR BASICS")
+  title     String // 챕터 제목 (예: "be동사")
+  order     Int      @default(0) // 정렬 순서
+  createdAt DateTime @default(now())
+
+  lessons Lesson[]
+
+  @@index([order])
+}
+
+// 강의 = Unit 하나 = 영상 하나
+model Lesson {
+  id        Int      @id @default(autoincrement())
+  code      String? // 표시용 (예: "Unit 01")
+  title     String // 강의 제목 (예: "be동사의 현재형과 과거형")
+  page      Int? // 교재 페이지
+  videoUrl  String? // 네이버 마이박스 등 영상 링크 (없으면 준비중)
+  note      String? // 학생 안내 문구 (선택)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId Int
+
+  @@index([courseId])
+}

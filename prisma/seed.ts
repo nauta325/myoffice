@@ -14,6 +14,8 @@ async function main() {
   await prisma.exam.deleteMany();
   await prisma.student.deleteMany();
   await prisma.classRoom.deleteMany();
+  await prisma.lesson.deleteMany();
+  await prisma.course.deleteMany();
 
   // 반 생성
   const math3 = await prisma.classRoom.create({
@@ -90,9 +92,99 @@ async function main() {
     }
   }
 
+  // ─── 강의실: 교재 목차 기반 강좌/영상 ───
+  // 교재 CONTENTS 그대로. videoUrl은 원장이 나중에 네이버 마이박스 링크로 채움.
+  const curriculum: {
+    code: string;
+    title: string;
+    units: { code: string; title: string; page: number }[];
+  }[] = [
+    {
+      code: "GRAMMAR BASICS",
+      title: "문법 기초",
+      units: [{ code: "", title: "Grammar Basics", page: 6 }],
+    },
+    {
+      code: "CHAPTER 01",
+      title: "be동사",
+      units: [
+        { code: "Unit 01", title: "be동사의 현재형과 과거형", page: 12 },
+        { code: "Unit 02", title: "be동사의 부정문과 의문문", page: 14 },
+      ],
+    },
+    {
+      code: "CHAPTER 02",
+      title: "일반동사",
+      units: [
+        { code: "Unit 01", title: "일반동사의 현재형", page: 24 },
+        { code: "Unit 02", title: "일반동사의 과거형", page: 26 },
+        { code: "Unit 03", title: "일반동사의 부정문", page: 28 },
+        { code: "Unit 04", title: "일반동사의 의문문", page: 30 },
+      ],
+    },
+    {
+      code: "CHAPTER 03",
+      title: "조동사",
+      units: [
+        { code: "Unit 01", title: "can, may", page: 40 },
+        { code: "Unit 02", title: "must, have to, should", page: 42 },
+      ],
+    },
+    {
+      code: "CHAPTER 04",
+      title: "진행형과 미래시제",
+      units: [
+        { code: "Unit 01", title: "진행형", page: 52 },
+        { code: "Unit 02", title: "will, be going to", page: 54 },
+      ],
+    },
+    {
+      code: "CHAPTER 05",
+      title: "동사의 종류",
+      units: [
+        { code: "Unit 01", title: "감각동사 + 형용사", page: 64 },
+        { code: "Unit 02", title: "목적어가 두 개 필요한 동사", page: 66 },
+        { code: "Unit 03", title: "목적격 보어가 필요한 동사", page: 68 },
+      ],
+    },
+    {
+      code: "CHAPTER 06",
+      title: "명사와 관사",
+      units: [
+        { code: "Unit 01", title: "셀 수 있는 명사 vs. 셀 수 없는 명사", page: 78 },
+        { code: "Unit 02", title: "관사", page: 80 },
+      ],
+    },
+  ];
+
+  let courseCount = 0;
+  let lessonCount = 0;
+  for (let i = 0; i < curriculum.length; i++) {
+    const c = curriculum[i];
+    const course = await prisma.course.create({
+      data: { code: c.code, title: c.title, order: i },
+    });
+    courseCount++;
+    for (let u = 0; u < c.units.length; u++) {
+      const unit = c.units[u];
+      await prisma.lesson.create({
+        data: {
+          code: unit.code || null,
+          title: unit.title,
+          page: unit.page,
+          order: u,
+          courseId: course.id,
+          // videoUrl은 비워둠 → 학생 화면에서 "준비중"으로 표시, 원장이 나중에 링크 등록
+        },
+      });
+      lessonCount++;
+    }
+  }
+
   console.log(
     `✅ 완료: 반 3개, 학생 ${students.length}명, 출결·시험·성적 샘플 생성됨`
   );
+  console.log(`✅ 강의실: 강좌 ${courseCount}개, 강의 ${lessonCount}개 생성됨`);
 }
 
 main()
