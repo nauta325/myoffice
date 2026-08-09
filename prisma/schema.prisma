@@ -1,0 +1,125 @@
+// 학원 출결·성적 관리 - 데이터 모델
+// 단일 관리자(원장) 기준 MVP. 나중에 강사/학부모 계정으로 확장 가능.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 반 (클래스) - 예: "중3 수학 A반"
+model ClassRoom {
+  id        Int      @id @default(autoincrement())
+  name      String // 반 이름
+  subject   String // 과목 (수학, 영어, 국어 등)
+  grade     String // 대상 학년 (초6, 중3, 고2 등)
+  teacher   String? // 담당 강사 (선택)
+  createdAt DateTime @default(now())
+
+  students Student[]
+  exams    Exam[]
+}
+
+// 학생
+model Student {
+  id          Int      @id @default(autoincrement())
+  name        String
+  school      String? // 재학 학교
+  grade       String // 학년 (초6, 중3, 고2 등)
+  phone       String? // 학생 연락처
+  parentPhone String? // 학부모 연락처
+  memo        String? // 특이사항
+  active      Boolean  @default(true) // 재원 여부
+  createdAt   DateTime @default(now())
+
+  classRoom   ClassRoom? @relation(fields: [classRoomId], references: [id], onDelete: SetNull)
+  classRoomId Int?
+
+  attendances Attendance[]
+  grades      Grade[]
+}
+
+// 출결 기록 - 학생별 하루 1건
+// status 값: PRESENT(출석) | LATE(지각) | ABSENT(결석) | EARLY(조퇴) | EXCUSED(인정)
+// 앱 레벨 유니온 타입(src/lib/utils.ts의 AttendanceStatus)으로 관리
+model Attendance {
+  id        Int      @id @default(autoincrement())
+  date      DateTime // 수업 날짜 (자정 기준)
+  status    String   @default("PRESENT")
+  note      String?
+  createdAt DateTime @default(now())
+
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId Int
+
+  @@unique([studentId, date])
+  @@index([date])
+}
+
+// 시험 - 반 단위로 생성 (예: "3월 모의고사", "중간고사")
+model Exam {
+  id        Int      @id @default(autoincrement())
+  name      String
+  date      DateTime
+  maxScore  Int      @default(100) // 만점
+  createdAt DateTime @default(now())
+
+  classRoom   ClassRoom @relation(fields: [classRoomId], references: [id], onDelete: Cascade)
+  classRoomId Int
+
+  grades Grade[]
+
+  @@index([classRoomId])
+}
+
+// 성적 - 시험 x 학생
+model Grade {
+  id        Int      @id @default(autoincrement())
+  score     Float
+  createdAt DateTime @default(now())
+
+  exam      Exam    @relation(fields: [examId], references: [id], onDelete: Cascade)
+  examId    Int
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId Int
+
+  @@unique([examId, studentId])
+}
+
+// ─────────────────────────────────────────────
+// 강의실 (학생용 영상 강의) - 교재 목차 기반
+// Course(강좌 = 챕터) → Lesson(강의 = Unit 영상)
+// ─────────────────────────────────────────────
+
+// 강좌 = 교재의 챕터 (예: "CHAPTER 01 be동사")
+model Course {
+  id        Int      @id @default(autoincrement())
+  code      String? // 표시용 라벨 (예: "CHAPTER 01", "GRAMMAR BASICS")
+  title     String // 챕터 제목 (예: "be동사")
+  order     Int      @default(0) // 정렬 순서
+  createdAt DateTime @default(now())
+
+  lessons Lesson[]
+
+  @@index([order])
+}
+
+// 강의 = Unit 하나 = 영상 하나
+model Lesson {
+  id        Int      @id @default(autoincrement())
+  code      String? // 표시용 (예: "Unit 01")
+  title     String // 강의 제목 (예: "be동사의 현재형과 과거형")
+  page      Int? // 교재 페이지
+  videoUrl  String? // 네이버 마이박스 등 영상 링크 (없으면 준비중)
+  note      String? // 학생 안내 문구 (선택)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId Int
+
+  @@index([courseId])
+}
