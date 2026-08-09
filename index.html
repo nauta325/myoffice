@@ -1,0 +1,384 @@
+<title>영문법 강의실</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  /* ===========================================================
+     팔레트 — 라이트(기본) / 다크 모두 토큰으로 정의
+     =========================================================== */
+  :root {
+    --paper: #f6f5f0;
+    --surface: #fffefb;
+    --surface-hover: #f1f4f1;
+    --ink: #1b2a26;
+    --muted: #61706a;
+    --faint: #93a099;
+    --line: #e4e2d7;
+    --line-soft: #eeece4;
+    --accent: #0f6f61;
+    --accent-strong: #0b544a;
+    --accent-soft: #dcece7;
+    --accent-softer: #ecf4f1;
+    --shadow: 0 1px 2px rgba(27, 42, 38, 0.05), 0 8px 24px -16px rgba(27, 42, 38, 0.18);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #101310;
+      --surface: #181c17;
+      --surface-hover: #1f251e;
+      --ink: #e9ece6;
+      --muted: #9ca79f;
+      --faint: #6d7b72;
+      --line: #2a2f28;
+      --line-soft: #222720;
+      --accent: #46bca7;
+      --accent-strong: #6bcdb9;
+      --accent-soft: #17302b;
+      --accent-softer: #152420;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px -20px rgba(0, 0, 0, 0.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #101310;
+    --surface: #181c17;
+    --surface-hover: #1f251e;
+    --ink: #e9ece6;
+    --muted: #9ca79f;
+    --faint: #6d7b72;
+    --line: #2a2f28;
+    --line-soft: #222720;
+    --accent: #46bca7;
+    --accent-strong: #6bcdb9;
+    --accent-soft: #17302b;
+    --accent-softer: #152420;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px -20px rgba(0, 0, 0, 0.6);
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR",
+      system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: clamp(28px, 6vw, 64px) clamp(18px, 5vw, 32px) 72px;
+  }
+
+  /* ── 헤더 ── */
+  header { margin-bottom: clamp(28px, 5vw, 44px); }
+  .eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 10px;
+  }
+  h1 {
+    font-size: clamp(28px, 6vw, 40px);
+    line-height: 1.1;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 0 0 12px;
+    text-wrap: balance;
+  }
+  .lede {
+    margin: 0;
+    color: var(--muted);
+    font-size: clamp(15px, 2.4vw, 16px);
+    max-width: 52ch;
+  }
+  .stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+    padding: 8px 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+    font-size: 13px;
+    color: var(--muted);
+    box-shadow: var(--shadow);
+  }
+  .stat b { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .stat .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+
+  /* ── 챕터 섹션 ── */
+  .chapter { margin-top: clamp(30px, 5vw, 42px); }
+  .chapter-head {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding-bottom: 12px;
+    margin-bottom: 6px;
+    border-bottom: 2px solid var(--line);
+    flex-wrap: wrap;
+  }
+  .chapter-code {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  .chapter-title { font-size: clamp(19px, 3.4vw, 22px); font-weight: 750; letter-spacing: -0.01em; }
+
+  /* ── 강의 행 ── */
+  .unit {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 15px 14px;
+    border-radius: 12px;
+    border-bottom: 1px solid var(--line-soft);
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.16s ease, transform 0.16s ease;
+  }
+  .unit:last-child { border-bottom: 0; }
+  a.unit:hover { background: var(--surface-hover); }
+  a.unit:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    background: var(--surface-hover);
+  }
+
+  .marker {
+    flex: none;
+    width: 38px; height: 38px;
+    display: grid; place-items: center;
+    border-radius: 10px;
+    font-size: 15px;
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  .unit.pending .marker { background: var(--line-soft); color: var(--faint); }
+
+  .unit-body { flex: 1 1 auto; min-width: 0; }
+  .unit-title {
+    font-size: 15.5px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .unit-code {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .unit.pending .unit-code { color: var(--faint); }
+  .unit-meta { font-size: 12.5px; color: var(--faint); margin-top: 2px; font-variant-numeric: tabular-nums; }
+
+  .action { flex: none; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 15px;
+    border-radius: 9px;
+    font-size: 13.5px;
+    font-weight: 650;
+    background: var(--accent);
+    color: #fff;
+    white-space: nowrap;
+  }
+  :root[data-theme="dark"] .btn { color: #0c130f; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .btn { color: #0c130f; }
+  }
+  a.unit:hover .btn { background: var(--accent-strong); }
+  .pending-tag {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--faint);
+    padding: 8px 12px;
+    border: 1px dashed var(--line);
+    border-radius: 9px;
+    white-space: nowrap;
+  }
+
+  footer {
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    color: var(--faint);
+    font-size: 12.5px;
+    text-align: center;
+    line-height: 1.7;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">온라인 강의실</p>
+    <h1 id="page-title">영문법 강의</h1>
+    <p class="lede">
+      아래 목록에서 강의를 눌러 영상을 시청하세요. 순서대로 차근차근 학습하면 됩니다.
+    </p>
+    <div class="stat">
+      <span class="dot"></span>
+      전체 <b id="stat-total">0</b>강 · 시청 가능 <b id="stat-ready">0</b>강
+    </div>
+  </header>
+
+  <main id="list"></main>
+
+  <footer id="footer"></footer>
+</div>
+
+<script>
+  /* =====================================================================
+     ▼▼▼  여기에 영상 링크를 넣으세요  ▼▼▼
+     각 강의의 url: "" 따옴표 안에 네이버 마이박스 공유 링크를 붙여넣으면
+     자동으로 "▶ 영상 보기" 버튼이 생깁니다. 비워두면 "준비 중"으로 표시됩니다.
+     제목/페이지도 자유롭게 고칠 수 있습니다.
+     맨 위 제목은 page-title(아래 TITLE)에서 바꾸세요.
+     ===================================================================== */
+
+  const TITLE = "영문법 강의";
+
+  const CURRICULUM = [
+    {
+      code: "GRAMMAR BASICS",
+      title: "문법 기초",
+      units: [
+        { code: "", title: "Grammar Basics", page: 6, url: "" },
+      ],
+    },
+    {
+      code: "CHAPTER 01",
+      title: "be동사",
+      units: [
+        { code: "Unit 01", title: "be동사의 현재형과 과거형", page: 12, url: "" },
+        { code: "Unit 02", title: "be동사의 부정문과 의문문", page: 14, url: "" },
+      ],
+    },
+    {
+      code: "CHAPTER 02",
+      title: "일반동사",
+      units: [
+        { code: "Unit 01", title: "일반동사의 현재형", page: 24, url: "" },
+        { code: "Unit 02", title: "일반동사의 과거형", page: 26, url: "" },
+        { code: "Unit 03", title: "일반동사의 부정문", page: 28, url: "" },
+        { code: "Unit 04", title: "일반동사의 의문문", page: 30, url: "" },
+      ],
+    },
+    {
+      code: "CHAPTER 03",
+      title: "조동사",
+      units: [
+        { code: "Unit 01", title: "can, may", page: 40, url: "" },
+        { code: "Unit 02", title: "must, have to, should", page: 42, url: "" },
+      ],
+    },
+    {
+      code: "CHAPTER 04",
+      title: "진행형과 미래시제",
+      units: [
+        { code: "Unit 01", title: "진행형", page: 52, url: "" },
+        { code: "Unit 02", title: "will, be going to", page: 54, url: "" },
+      ],
+    },
+    {
+      code: "CHAPTER 05",
+      title: "동사의 종류",
+      units: [
+        { code: "Unit 01", title: "감각동사 + 형용사", page: 64, url: "" },
+        { code: "Unit 02", title: "목적어가 두 개 필요한 동사", page: 66, url: "" },
+        { code: "Unit 03", title: "목적격 보어가 필요한 동사", page: 68, url: "" },
+      ],
+    },
+    {
+      code: "CHAPTER 06",
+      title: "명사와 관사",
+      units: [
+        { code: "Unit 01", title: "셀 수 있는 명사 vs. 셀 수 없는 명사", page: 78, url: "" },
+        { code: "Unit 02", title: "관사", page: 80, url: "" },
+      ],
+    },
+  ];
+
+  /* ▲▲▲  여기까지만 고치면 됩니다  ▲▲▲ */
+
+  // ── 렌더링 ──
+  const esc = (s) =>
+    String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  document.getElementById("page-title").textContent = TITLE;
+  document.title = TITLE + " · 온라인 강의실";
+
+  let total = 0, ready = 0;
+  const list = document.getElementById("list");
+
+  for (const ch of CURRICULUM) {
+    const section = document.createElement("section");
+    section.className = "chapter";
+
+    const head = document.createElement("div");
+    head.className = "chapter-head";
+    head.innerHTML =
+      (ch.code ? `<span class="chapter-code">${esc(ch.code)}</span>` : "") +
+      `<span class="chapter-title">${esc(ch.title)}</span>`;
+    section.appendChild(head);
+
+    for (const u of ch.units) {
+      total++;
+      const has = u.url && u.url.trim();
+      if (has) ready++;
+
+      const meta = u.page ? `교재 ${esc(u.page)}p` : "";
+      const inner =
+        `<span class="marker">${has ? "▶" : "⏳"}</span>` +
+        `<span class="unit-body">` +
+        `<span class="unit-title">` +
+        (u.code ? `<span class="unit-code">${esc(u.code)}</span>` : "") +
+        `${esc(u.title)}</span>` +
+        (meta ? `<span class="unit-meta">${meta}</span>` : "") +
+        `</span>` +
+        (has
+          ? `<span class="action"><span class="btn">▶ 영상 보기</span></span>`
+          : `<span class="action"><span class="pending-tag">준비 중</span></span>`);
+
+      let row;
+      if (has) {
+        row = document.createElement("a");
+        row.className = "unit";
+        row.href = u.url.trim();
+        row.target = "_blank";
+        row.rel = "noopener noreferrer";
+      } else {
+        row = document.createElement("div");
+        row.className = "unit pending";
+      }
+      row.innerHTML = inner;
+      section.appendChild(row);
+    }
+    list.appendChild(section);
+  }
+
+  document.getElementById("stat-total").textContent = total;
+  document.getElementById("stat-ready").textContent = ready;
+
+  document.getElementById("footer").innerHTML =
+    ready === 0
+      ? "영상 링크는 아직 준비 중입니다. 링크가 등록되면 바로 시청할 수 있어요. 📚"
+      : "강의를 누르면 새 창에서 영상이 열립니다. 열심히 공부해요! 📚";
+</script>
