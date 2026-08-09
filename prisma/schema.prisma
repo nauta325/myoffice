@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -44,7 +44,7 @@ model Student {
 
 // 출결 기록 - 학생별 하루 1건
 // status 값: PRESENT(출석) | LATE(지각) | ABSENT(결석) | EARLY(조퇴) | EXCUSED(인정)
-// (SQLite는 enum 미지원 → String + 앱 레벨 유니온 타입으로 관리)
+// 앱 레벨 유니온 타입(src/lib/utils.ts의 AttendanceStatus)으로 관리
 model Attendance {
   id        Int      @id @default(autoincrement())
   date      DateTime // 수업 날짜 (자정 기준)

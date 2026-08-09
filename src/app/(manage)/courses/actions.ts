@@ -2,6 +2,34 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { CURRICULUM } from "@/lib/curriculum";
+
+// 교재 목차(CURRICULUM)를 한 번에 생성 — 강좌가 하나도 없을 때만 동작(중복/덮어쓰기 방지)
+export async function seedCurriculum() {
+  const existing = await prisma.course.count();
+  if (existing > 0) return;
+
+  for (let i = 0; i < CURRICULUM.length; i++) {
+    const c = CURRICULUM[i];
+    const course = await prisma.course.create({
+      data: { code: c.code, title: c.title, order: i },
+    });
+    for (let u = 0; u < c.units.length; u++) {
+      const unit = c.units[u];
+      await prisma.lesson.create({
+        data: {
+          code: unit.code || null,
+          title: unit.title,
+          page: unit.page,
+          order: u,
+          courseId: course.id,
+        },
+      });
+    }
+  }
+  revalidatePath("/courses");
+  revalidatePath("/watch");
+}
 
 // ─── 강좌(챕터) ───
 export async function createCourse(formData: FormData) {

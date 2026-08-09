@@ -78,11 +78,27 @@ Course (강좌/챕터) ──< Lesson (강의/Unit, 영상 링크)
 - **성적**은 `시험 × 학생`으로 유일. 석차는 입력된 점수 기준으로 실시간 계산(동점은 공동 등수).
 - **강의실**은 교재 목차를 그대로 옮긴 구조로, `Course`(챕터)에 `Lesson`(Unit)이 딸리고 각 Lesson이 영상 링크를 가집니다. 샘플 데이터에 교재 목차(GRAMMAR BASICS + CHAPTER 01~06)가 미리 들어 있습니다.
 
-## 데이터베이스에 대하여
+## 데이터베이스
 
-개발용으로 파일 기반 **SQLite**(`prisma/dev.db`)를 사용합니다. `.gitignore`에 포함되어 저장소에 올라가지 않으므로,
-새 환경에서는 `npm run db:push && npm run db:seed`로 손쉽게 생성할 수 있습니다.
-실서비스로 확장할 때는 `prisma/schema.prisma`의 `datasource`를 PostgreSQL 등으로 교체하면 됩니다.
+**PostgreSQL**을 사용합니다. 접속 문자열은 환경변수 `DATABASE_URL`로 주입합니다(`.env` 파일 또는 배포 플랫폼의 환경변수).
+로컬 개발도 클라우드 DB(예: Neon) 문자열을 그대로 쓰면 됩니다.
+
+```bash
+cp .env.example .env      # DATABASE_URL 채우기
+npm run db:push           # 테이블 생성
+npm run db:seed           # (선택) 로컬 샘플 데이터
+```
+
+## Vercel 배포
+
+1. **Vercel 프로젝트 → Storage 탭 → Create Database → Postgres(Neon)** 생성.
+   생성 시 `DATABASE_URL` 환경변수가 프로젝트에 자동 등록됩니다.
+   (다른 이름으로 등록되면 `DATABASE_URL` 이름으로 값을 하나 추가하세요.
+   `prisma db push`가 안정적으로 되도록 **직접 연결(non-pooled)** 문자열 권장.)
+2. `main` 브랜치에 배포하면 빌드 과정에서 `prisma db push`가 실행되어 테이블이 자동 생성됩니다.
+   (빌드 스크립트: `prisma generate && prisma db push && next build`)
+3. 배포 후 `/courses`에서 **📚 교재 목차 불러오기** 버튼으로 강좌·강의를 한 번에 생성하고,
+   각 강의에 네이버 마이박스 링크를 붙여넣으면 학생이 `/watch`에서 시청합니다.
 
 ## 앞으로 확장하기 좋은 방향
 

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { createCourse, deleteCourse } from "./actions";
+import { createCourse, deleteCourse, seedCurriculum } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -43,9 +43,19 @@ export default async function CoursesAdminPage() {
 
       {/* 강좌 목록 */}
       {courses.length === 0 ? (
-        <p className="card text-center text-sm text-slate-400">
-          아직 강좌가 없습니다. 위에서 첫 강좌를 추가하세요.
-        </p>
+        <div className="card space-y-4 text-center">
+          <p className="text-sm text-slate-500">
+            아직 강좌가 없습니다. 교재 목차를 한 번에 불러오거나, 위에서 직접 추가하세요.
+          </p>
+          <form action={seedCurriculum}>
+            <button type="submit" className="btn-primary">
+              📚 교재 목차 불러오기 (GRAMMAR BASICS + CHAPTER 01~06)
+            </button>
+          </form>
+          <p className="text-xs text-slate-400">
+            챕터 7개 · 강의 16개가 생성되며, 각 강의에 영상 링크만 붙이면 됩니다.
+          </p>
+        </div>
       ) : (
         <div className="space-y-3">
           {courses.map((c) => {
