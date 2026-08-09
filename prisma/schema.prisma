@@ -1,0 +1,90 @@
+// 학원 출결·성적 관리 - 데이터 모델
+// 단일 관리자(원장) 기준 MVP. 나중에 강사/학부모 계정으로 확장 가능.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// 반 (클래스) - 예: "중3 수학 A반"
+model ClassRoom {
+  id        Int      @id @default(autoincrement())
+  name      String // 반 이름
+  subject   String // 과목 (수학, 영어, 국어 등)
+  grade     String // 대상 학년 (초6, 중3, 고2 등)
+  teacher   String? // 담당 강사 (선택)
+  createdAt DateTime @default(now())
+
+  students Student[]
+  exams    Exam[]
+}
+
+// 학생
+model Student {
+  id          Int      @id @default(autoincrement())
+  name        String
+  school      String? // 재학 학교
+  grade       String // 학년 (초6, 중3, 고2 등)
+  phone       String? // 학생 연락처
+  parentPhone String? // 학부모 연락처
+  memo        String? // 특이사항
+  active      Boolean  @default(true) // 재원 여부
+  createdAt   DateTime @default(now())
+
+  classRoom   ClassRoom? @relation(fields: [classRoomId], references: [id], onDelete: SetNull)
+  classRoomId Int?
+
+  attendances Attendance[]
+  grades      Grade[]
+}
+
+// 출결 기록 - 학생별 하루 1건
+// status 값: PRESENT(출석) | LATE(지각) | ABSENT(결석) | EARLY(조퇴) | EXCUSED(인정)
+// (SQLite는 enum 미지원 → String + 앱 레벨 유니온 타입으로 관리)
+model Attendance {
+  id        Int      @id @default(autoincrement())
+  date      DateTime // 수업 날짜 (자정 기준)
+  status    String   @default("PRESENT")
+  note      String?
+  createdAt DateTime @default(now())
+
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId Int
+
+  @@unique([studentId, date])
+  @@index([date])
+}
+
+// 시험 - 반 단위로 생성 (예: "3월 모의고사", "중간고사")
+model Exam {
+  id        Int      @id @default(autoincrement())
+  name      String
+  date      DateTime
+  maxScore  Int      @default(100) // 만점
+  createdAt DateTime @default(now())
+
+  classRoom   ClassRoom @relation(fields: [classRoomId], references: [id], onDelete: Cascade)
+  classRoomId Int
+
+  grades Grade[]
+
+  @@index([classRoomId])
+}
+
+// 성적 - 시험 x 학생
+model Grade {
+  id        Int      @id @default(autoincrement())
+  score     Float
+  createdAt DateTime @default(now())
+
+  exam      Exam    @relation(fields: [examId], references: [id], onDelete: Cascade)
+  examId    Int
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId Int
+
+  @@unique([examId, studentId])
+}
